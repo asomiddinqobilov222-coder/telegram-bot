@@ -853,25 +853,34 @@ async def main() -> None:
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_error_handler(error_handler)
 
-    # ── Webhook yoki Polling avtomatik tanlash ──
-    webhook_url = _read_env_value("WEBHOOK_URL")  # masalan: https://yourapp.replit.app
+    webhook_url = _read_env_value("WEBHOOK_URL")
 
-    if webhook_url:
-        port = int(os.getenv("PORT", "8080"))
-        logger.info("Webhook rejimida ishga tushdi: %s", webhook_url)
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=port,
-            url_path=BOT_TOKEN,
-            webhook_url=f"{webhook_url.rstrip('/')}/{BOT_TOKEN}",
-            allowed_updates=Update.ALL_TYPES,
-            drop_pending_updates=True,
-        )
-    else:
-        logger.info("Polling rejimida ishga tushdi")
-        app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
+    async with app:
+        await app.initialize()
+        if webhook_url:
+            port = int(os.getenv("PORT", "8080"))
+            logger.info("Webhook rejimida ishga tushdi: %s", webhook_url)
+            await app.bot.set_webhook(
+                url=f"{webhook_url.rstrip('/')}/{BOT_TOKEN}",
+                allowed_updates=Update.ALL_TYPES,
+                drop_pending_updates=True,
+            )
+            await app.start()
+            await app.updater.start_webhook(
+                listen="0.0.0.0",
+                port=port,
+                url_path=BOT_TOKEN,
+            )
+            await asyncio.Event().wait()
+        else:
+            logger.info("Polling rejimida ishga tushdi")
+            await app.updater.start_polling(
+                allowed_updates=Update.ALL_TYPES,
+                drop_pending_updates=True,
+            )
+            await app.start()
+            await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
