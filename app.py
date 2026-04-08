@@ -832,7 +832,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.exception("Unhandled bot error", exc_info=context.error)
 
 
-def main() -> None:
+async def main() -> None:
     if not BOT_TOKEN:
         raise RuntimeError("BOT_TOKEN topilmadi. bot.env faylini tekshiring.")
 
@@ -873,4 +873,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())
