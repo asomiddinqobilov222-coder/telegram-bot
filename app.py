@@ -27,7 +27,6 @@ from telegram.ext import (
     filters,
 )
 from telegram.request import HTTPXRequest
-from keep_alive import keep_alive
 
 
 BASE_DIR = Path(__file__).resolve().parent
