@@ -1,0 +1,4 @@
+python-telegram-bot[webhooks]==21.6
+yt-dlp
+aiohttp
+python-dotenv
